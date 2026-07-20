@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인공지능 윤리 인터랙티브 클래스룸</title>
+    <!-- Tailwind CSS 및 FontAwesome 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            light: '#f8fafc',
+                            primary: '#4f46e5',
+                            secondary: '#06b6d4',
+                            accent: '#f59e0b',
+                            danger: '#ef4444',
+                            success: '#10b981',
+                            card: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        };
+
+        // 초기 화면 플래시 현상 방지용 인라인 스크립트
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <style>
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(120, 120, 120, 0.05);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 3px;
+        }
+        /* 페이드인 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-100 min-h-screen font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
+
+    <!-- 헤더 영역 -->
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-brand-primary to-brand-secondary p-2 rounded-xl text-white shadow-lg shadow-brand-primary/20">
+                    <i class="fa-solid fa-brain-circuit text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl md:text-2xl tracking-tight bg-gradient-to-r from-slate-800 via-slate-900 to-brand-primary dark:from-white dark:via-slate-200 dark:to-brand-secondary bg-clip-text text-transparent">
+                        인공지능 윤리 인터랙티브 랩
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">고등학교 인공지능 기초 • 소단원 2-2. 인공지능의 편향과 딜레마</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- 테마 전환 토글 스위치 -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon"></i>
+                </button>
+
+                <div class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-success animate-pulse"></span>
+                    <span>교과서 "인공지능기초_윤리적딜레마.pdf" 연계 수업</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 레이아웃 -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- 왼쪽 패널: 네비게이션 및 학습 진행 지표 -->
+        <aside class="lg:col-span-1 flex flex-col gap-4">
+            <div class="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">학습 가이드맵</h3>
+                <nav class="flex flex-col gap-2">
+                    <button onclick="switchTab('bias-lab')" id="btn-bias-lab" class="tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 bg-brand-primary text-white shadow-lg shadow-brand-primary/20">
+                        <i class="fa-solid fa-sliders text-base"></i>
+                        <span class="text-sm">01. AI 편향 실험실</span>
+                    </button>
+                    <button onclick="switchTab('trolley')" id="btn-trolley" class="tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100">
+                        <i class="fa-solid fa-train text-base"></i>
+                        <span class="text-sm">02. 트롤리 아레나</span>
+                    </button>
+                    <button onclick="switchTab('moral-machine')" id="btn-moral-machine" class="tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100">
+                        <i class="fa-solid fa-car-side text-base"></i>
+                        <span class="text-sm">03. 자율주행 모랄 머신</span>
+                    </button>
+                    <button onclick="switchTab('socrates')" id="btn-socrates" class="tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100">
+                        <i class="fa-solid fa-comments text-base"></i>
+                        <span class="text-sm">04. AI 소크라테스 토론</span>
+                    </button>
+                    <button onclick="switchTab('reflection')" id="btn-reflection" class="tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100">
+                        <i class="fa-solid fa-chalkboard-user text-base"></i>
+                        <span class="text-sm">05. 윤리 실천 보드</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="bg-gradient-to-b from-white to-indigo-50/50 dark:from-slate-900 dark:to-indigo-950/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center gap-2 text-brand-secondary text-sm font-bold mb-3">
+                    <i class="fa-solid fa-award"></i>
+                    <span>오늘의 학습 미션</span>
+                </div>
+                <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2">
+                    <li class="flex items-center gap-2"><i class="fa-regular fa-square-check text-brand-success"></i> 편향성 실험으로 가중치 분석하기</li>
+                    <li class="flex items-center gap-2"><i id="mission-trolley" class="fa-regular fa-square text-slate-400 dark:text-slate-500"></i> 트롤리 딜레마 선택 투표하기</li>
+                    <li class="flex items-center gap-2"><i id="mission-moral" class="fa-regular fa-square text-slate-400 dark:text-slate-500"></i> 모랄 머신 동양/서양 문화 분석</li>
+                    <li class="flex items-center gap-2"><i id="mission-socrates" class="fa-regular fa-square text-slate-400 dark:text-slate-500"></i> AI 소크라테스와 1회 이상 논박하기</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 오른쪽 메인 콘텐츠 영역 -->
+        <section class="lg:col-span-3 min-h-[600px] flex flex-col bg-white/60 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 md:p-6 shadow-2xl relative overflow-hidden transition-colors duration-300">
+            
+            <!-- TAB 1: AI 편향 실험실 (Recruitment Sandbox) -->
+            <div id="tab-bias-lab" class="tab-content animate-fade-in block space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                        <i class="fa-solid fa-cube text-brand-primary"></i>
+                        <span>AI Algorithms Sandbox</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">01. AI 면접 알고리즘 실험실</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        우리는 인공지능이 늘 객관적이라고 생각합니다. 하지만 개발자가 가중치를 다르게 주거나 데이터에 편향이 있다면 어떤 일이 벌어질까요?
+                        인공지능 면접관의 평가 알고리즘을 설계해보고 편향 결과를 분석해 보세요!
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- 가중치 조절 슬라이더 영역 -->
+                    <div class="md:col-span-5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-4">
+                        <h3 class="text-sm font-bold text-brand-secondary border-b border-slate-200 dark:border-slate-800 pb-2 flex items-center justify-between">
+                            <span>평가 알고리즘 가중치 조정 (<math><mo>∑</mo><mi>w</mi></math>)</span>
+                            <span class="text-xs font-normal text-slate-500 dark:text-slate-400">합계 100% 권장</span>
+                        </h3>
+                        
+                        <!-- 슬라이더 1 -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-700 dark:text-slate-300">이력서 적합성 (학습 역량)</span>
+                                <span id="val-resume" class="text-brand-primary font-bold">40%</span>
+                            </div>
+                            <input type="range" id="weight-resume" min="0" max="100" value="40" oninput="updateWeights()" class="w-full accent-indigo-500 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- 슬라이더 2 -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-700 dark:text-slate-300">면접 호감도 (외모, 표정, 음성)</span>
+                                <span id="val-appearance" class="text-brand-primary font-bold">30%</span>
+                            </div>
+                            <input type="range" id="weight-appearance" min="0" max="100" value="30" oninput="updateWeights()" class="w-full accent-indigo-500 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            <p class="text-[10px] text-slate-500">표정이나 얼굴 대칭성, 목소리 등 외적인 속성 데이터</p>
+                        </div>
+
+                        <!-- 슬라이더 3 -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-700 dark:text-slate-300">출신 학교 명성 (학업 경향성)</span>
+                                <span id="val-school" class="text-brand-primary font-bold">20%</span>
+                            </div>
+                            <input type="range" id="weight-school" min="0" max="100" value="20" oninput="updateWeights()" class="w-full accent-indigo-500 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <!-- 슬라이더 4 (숨겨진 편향 생성용 가중치) -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-700 dark:text-slate-300">야근 가능성 / 거주 지역 편향</span>
+                                <span id="val-overtime" class="text-brand-primary font-bold">10%</span>
+                            </div>
+                            <input type="range" id="weight-overtime" min="0" max="100" value="10" oninput="updateWeights()" class="w-full accent-indigo-500 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            <p class="text-[10px] text-brand-danger">남성 비율이 높은 과거 성공 데이터를 반영한 가중치</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">현재 총 가중치 합:</span>
+                            <span id="total-weight" class="font-bold text-brand-success text-sm">100%</span>
+                        </div>
+
+                        <button onclick="runSimulation()" class="w-full bg-gradient-to-r from-brand-primary to-brand-secondary hover:brightness-110 active:scale-[0.98] transition-all py-3 rounded-xl font-bold text-sm text-white shadow-lg shadow-brand-primary/20">
+                            알고리즘으로 면접 시작하기 <i class="fa-solid fa-play ml-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- 모둠 지원자 카드 및 실시간 랭킹 영역 -->
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">지원자 리스트 (최종 선발 정원: 2명)</h4>
+                            <span class="text-xs bg-indigo-50 dark:bg-indigo-950 text-brand-secondary px-2.5 py-1 border border-brand-primary/20 rounded-full font-bold">동적 데이터 렌더링</span>
+                        </div>
+                        
+                        <div id="candidates-container" class="space-y-3">
+                            <!-- JS를 통해 각 후보가 렌더링됩니다. -->
+                        </div>
+
+                        <!-- 분석 결과 알림창 -->
+                        <div id="sim-result-box" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl hidden animate-fade-in space-y-3">
+                            <h4 class="text-sm font-bold text-brand-accent flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>면접 알고리즘 가중치 영향도 분석</span>
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl text-center shadow-sm">
+                                    <p class="text-slate-500 dark:text-slate-400">성별 다양성 지수</p>
+                                    <p id="stat-diversity" class="text-lg font-black text-slate-800 dark:text-white mt-1">-</p>
+                                </div>
+                                <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl text-center shadow-sm">
+                                    <p class="text-slate-500 dark:text-slate-400">데이터 편향지수</p>
+                                    <p id="stat-bias" class="text-lg font-black text-brand-danger mt-1">-</p>
+                                </div>
+                            </div>
+                            <p id="sim-analysis-text" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 트롤리 딜레마 아레나 -->
+            <div id="tab-trolley" class="tab-content animate-fade-in hidden space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                        <i class="fa-solid fa-train text-brand-primary"></i>
+                        <span>The Trolley Dilemma</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">02. 트롤리 딜레마와 두 철학</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        선택에 따르는 도덕적 무거움과 책임감의 척도를 테스트합니다. 아래의 두 위급 상황에서 여러분은 어떤 결정을 내릴 수 있을까요?
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 사례 1 카드 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
+                        <div class="space-y-3">
+                            <span class="text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950 text-brand-secondary border border-brand-primary/30 px-3 py-1 rounded-full uppercase tracking-wider">사례 1 (Lever Scenario)</span>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">선로 전환기를 당기시겠습니까?</h3>
+                            <div class="h-32 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('https://placehold.co/400x200/1e293b/cbd5e1?text=Trolley+Lever');"></div>
+                                <span class="relative text-xs text-center text-slate-700 dark:text-slate-300 px-4 font-medium">전차가 오고 있고 5명이 일하고 있습니다. 선로 밖의 선로전환기를 당기면 1명이 있는 선로로 변경되지만, 가만히 두면 5명이 희생됩니다.</span>
+                            </div>
+                        </div>
+                        <div id="trolley-case1-vote" class="flex flex-col gap-2">
+                            <button onclick="voteTrolley(1, 'active')" class="w-full bg-brand-primary hover:bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md">선로전환기를 당겨 1명을 희생하고 5명을 구한다.</button>
+                            <button onclick="voteTrolley(1, 'passive')" class="w-full border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 transition-all">그냥 지켜보고 아무런 직접적 개입을 하지 않는다.</button>
+                        </div>
+                        <!-- 결과 투표창 -->
+                        <div id="trolley-case1-result" class="hidden space-y-3 animate-fade-in">
+                            <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-center space-y-1">
+                                <p class="text-brand-accent font-bold">마크 하우저 연구 설문 결과 (5,000명 기준)</p>
+                                <div class="flex justify-around items-center pt-2">
+                                    <div>
+                                        <span class="block text-slate-500 dark:text-slate-400">당긴다(공리주의)</span>
+                                        <span class="text-xl font-extrabold text-slate-800 dark:text-white">89%</span>
+                                    </div>
+                                    <div class="h-8 w-[1px] bg-slate-300 dark:bg-slate-700"></div>
+                                    <div>
+                                        <span class="block text-slate-500 dark:text-slate-400">지켜본다</span>
+                                        <span class="text-xl font-extrabold text-slate-400 dark:text-slate-500">11%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-50/50 dark:bg-indigo-950/30 border border-brand-primary/20 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <strong class="text-slate-800 dark:text-white block mb-1">💡 윤리학적 해석: 공리주의 (Utilitarianism)</strong>
+                                결과가 중요하다고 판단하는 입장입니다. 더 많은 생명을 보전하는 것이 기계적이거나 수식적으로 합리적이라고 생각하는 철학에 부합합니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 사례 2 카드 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
+                        <div class="space-y-3">
+                            <span class="text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950 text-brand-secondary border border-brand-primary/30 px-3 py-1 rounded-full uppercase tracking-wider">사례 2 (Bridge Scenario)</span>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">육교에서 사람을 미시겠습니까?</h3>
+                            <div class="h-32 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('https://placehold.co/400x200/1e293b/cbd5e1?text=Trolley+Bridge');"></div>
+                                <span class="relative text-xs text-center text-slate-700 dark:text-slate-300 px-4 font-medium">선로 위에 5명이 있고 나는 육교 위에 몸무게가 아주 무거운 1명과 있습니다. 이 한 명을 선로 위로 밀어 던지면 전차를 멈출 수 있습니다.</span>
+                            </div>
+                        </div>
+                        <div id="trolley-case2-vote" class="flex flex-col gap-2">
+                            <button onclick="voteTrolley(2, 'active')" class="w-full bg-brand-primary hover:bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md">사람을 직접 육교 밑으로 밀어 5명을 구한다.</button>
+                            <button onclick="voteTrolley(2, 'passive')" class="w-full border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 transition-all">결코 사람을 수단삼아 직접 살해를 개입하지 않는다.</button>
+                        </div>
+                        <!-- 결과 투표창 -->
+                        <div id="trolley-case2-result" class="hidden space-y-3 animate-fade-in">
+                            <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-center space-y-1">
+                                <p class="text-brand-accent font-bold">마크 하우저 연구 설문 결과 (5,000명 기준)</p>
+                                <div class="flex justify-around items-center pt-2">
+                                    <div>
+                                        <span class="block text-slate-500 dark:text-slate-400">민다</span>
+                                        <span class="text-xl font-extrabold text-slate-400 dark:text-slate-500">11%</span>
+                                    </div>
+                                    <div class="h-8 w-[1px] bg-slate-300 dark:bg-slate-700"></div>
+                                    <div>
+                                        <span class="block text-slate-500 dark:text-slate-400">밀지 않는다(의무론)</span>
+                                        <span class="text-xl font-extrabold text-slate-800 dark:text-white">89%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-50/50 dark:bg-indigo-950/30 border border-brand-primary/20 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <strong class="text-slate-800 dark:text-white block mb-1">💡 윤리학적 해석: 의무론 (Deontology)</strong>
+                                칸트의 철학처럼 "인간은 절대 어떤 행동의 단순한 수단으로 삼을 수 없다"는 도덕적 절대 규칙을 선호하는 입장입니다. 직접 개입의 묵직한 거부감이 작용합니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-100 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-300 shadow-inner">
+                    <h4 class="font-extrabold text-slate-800 dark:text-white mb-2"><i class="fa-solid fa-lightbulb text-brand-accent mr-1"></i> 교사 가이드 팁 및 비교 교훈</h4>
+                    <p class="leading-relaxed text-xs">
+                        사례 1과 사례 2는 결과론적으로 <strong>"5명 생존, 1명 희생"</strong>이라는 완전하게 동등한 수치적 결과를 나타냅니다. 
+                        그러나 사람들은 자신이 타인의 죽음에 물리적으로 <strong>"얼마나 직접적으로 관여 및 개입하느냐"</strong>에 따라 정반대의 투표 양상을 보입니다. 
+                        과연 인공지능이 탑재된다면 수학적 공리주의를 선택해야 할까요, 인간 감정을 대변하는 의무론적 선택을 우선해야 할까요?
+                    </p>
+                </div>
+            </div>
+
+            <!-- TAB 3: 자율주행 모랄 머신 -->
+            <div id="tab-moral-machine" class="tab-content animate-fade-in hidden space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                        <i class="fa-solid fa-car-side text-brand-primary"></i>
+                        <span>MIT Moral Machine Study</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">03. 자율주행 모랄 머신 미니게임</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        트롤리 문제와 유사하지만, 선택의 주체가 인간에서 기계(자율주행 알고리즘)로 전이되었을 때 발생하는 상황입니다.
+                        다음의 딜레마적 구도에서 보행자와 운전자의 가치를 측정해 봅시다.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- 게임 진행 인터랙티브 보드 -->
+                    <div class="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm">
+                        <div class="bg-brand-danger/10 border border-brand-danger/20 text-brand-danger px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>[비상상황] 자율주행 차량 브레이크 시스템 불능 상태!</span>
+                        </div>
+                        
+                        <div class="relative h-48 rounded-2xl overflow-hidden bg-slate-800 flex items-center justify-center border border-slate-700">
+                            <!-- SVG 간이 시뮬레이션 일러스트레이션 -->
+                            <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="100%" height="100%" fill="#1e293b"/>
+                                <!-- 도로 선 -->
+                                <line x1="0" y1="120" x2="600" y2="120" stroke="#475569" stroke-width="4" stroke-dasharray="8 8"/>
+                                <!-- 차 선로 벽 -->
+                                <rect x="350" y="30" width="10" height="140" fill="#334155"/>
+                                <!-- 자율주행 차량 간이 도식 -->
+                                <rect x="50" y="70" width="80" height="40" rx="10" fill="#4f46e5"/>
+                                <rect x="100" y="78" width="25" height="24" rx="3" fill="#06b6d4"/>
+                                <circle cx="70" cy="115" r="8" fill="#000"/>
+                                <circle cx="110" cy="115" r="8" fill="#000"/>
+                                
+                                <!-- 보행자 A: 실버 -->
+                                <text x="240" y="60" font-family="FontAwesome" font-size="28" fill="#f59e0b" text-anchor="middle">&#xf2b5;</text>
+                                <text x="240" y="85" font-family="sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">어르신 보행자</text>
+                                
+                                <!-- 보행자 B: 유아 -->
+                                <text x="240" y="140" font-family="FontAwesome" font-size="24" fill="#10b981" text-anchor="middle">&#xf1ae;</text>
+                                <text x="240" y="165" font-family="sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">어린이 보행자</text>
+                            </svg>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="chooseMoral('elder')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 py-3.5 rounded-xl font-bold text-xs md:text-sm text-center text-slate-800 dark:text-white transition-all shadow-sm">
+                                <span class="block text-[10px] text-brand-accent">알고리즘 1 선택</span>
+                                어르신 방향을 회피하고 어린이를 구한다. (어르신 희생)
+                            </button>
+                            <button onclick="chooseMoral('child')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 py-3.5 rounded-xl font-bold text-xs md:text-sm text-center text-slate-800 dark:text-white transition-all shadow-sm">
+                                <span class="block text-[10px] text-brand-success">알고리즘 2 선택</span>
+                                어린이 방향을 회피하고 어르신을 구한다. (어린이 희생)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 통계 분석 및 문화 비교 영역 -->
+                    <div class="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 flex flex-col justify-between shadow-sm">
+                        <div class="space-y-3">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-earth-americas text-brand-secondary"></i>
+                                <span>문화권별 도덕성 선호 가중치</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                MIT에서 230만 명의 전세계 데이터를 축적하여 분석한 결과, 도덕은 고정된 절대 공식이 아니라 사회 공동체의 규범과 정서의 거울임이 밝혀졌습니다.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-600 dark:text-slate-300 font-medium">북미 및 서구 국가 (Western Sphere)</span>
+                                    <span class="text-brand-secondary font-bold">어린이 보전 선호 우세</span>
+                                </div>
+                                <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                    <div class="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-600 dark:text-slate-300 font-medium">동방 권역 국가 (Eastern Sphere)</span>
+                                    <span class="text-brand-accent font-bold">노년층/공동체 중심 보호 경향</span>
+                                </div>
+                                <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                    <div class="bg-gradient-to-r from-brand-accent to-amber-500 h-full rounded-full" style="width: 71%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="moral-result-alert" class="hidden animate-fade-in bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 leading-relaxed shadow-inner">
+                            <strong class="text-slate-800 dark:text-white block mb-1">🔍 성찰 관점</strong>
+                            사회적 합의 수립이 가장 중요한 딜레마의 탈출구입니다. 이분법적인 선택을 넘어 차량의 비상 보조 제동 기술의 고도화, 법적 사후 기금 마련 등으로 시스템을 개선해야 합니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: AI 소크라테스 디베이트 (Gemini API) -->
+            <div id="tab-socrates" class="tab-content animate-fade-in hidden flex flex-col space-y-6 flex-grow">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                        <i class="fa-solid fa-comments text-brand-primary"></i>
+                        <span>AI Philosopher Socrates Debate</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">04. AI 철학 소크라테스 도덕 토론</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        어떠한 주장을 내놓든 그 주장의 한계와 딜레마를 질문으로 던지는 소크라테스 AI입니다.
+                        자신의 도덕적 기준을 입증하고 주장을 확장해보세요.
+                    </p>
+                </div>
+
+                <!-- 디베이트 인터페이스 및 메시지 로그 -->
+                <div class="flex-grow flex flex-col md:flex-row gap-4 min-h-[380px]">
+                    <!-- 옵션 및 토론 프롬프트 선택 -->
+                    <div class="md:w-1/3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl space-y-3 flex flex-col justify-between shadow-sm">
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-extrabold text-brand-secondary uppercase tracking-wider">토론 주제 설정</h4>
+                            <select id="debate-topic" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-brand-primary shadow-sm">
+                                <option value="self_driving">Q1. 자율주행 차량은 위기 시 운전자를 최우선으로 보호해야 할까?</option>
+                                <option value="ai_hr">Q2. 인공지능 면접관 알고리즘의 보급은 법으로 금지되어야 할까?</option>
+                                <option value="killer_robot">Q3. 전장의 인명 구조를 위한 킬러 로봇의 도입은 타당한가?</option>
+                            </select>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                                주제를 선정한 뒤 학생의 주장을 우측 입력 칸에 작성하세요. Socrates AI가 주장의 도덕 철학을 분석해 반박 질문을 보냅니다.
+                            </p>
+                        </div>
+                        <div class="bg-indigo-50/50 dark:bg-indigo-950/20 border border-brand-primary/20 p-3 rounded-xl">
+                            <span class="text-xs text-brand-secondary block font-bold mb-1"><i class="fa-solid fa-microchip"></i> Gemini 3.1 Flash</span>
+                            <span class="text-[10px] text-slate-600 dark:text-slate-300">구글의 초거대 AI가 실시간 소크라테스식 산파술 기법으로 질문하도록 지시되었습니다.</span>
+                        </div>
+                    </div>
+
+                    <!-- 채팅 영역 -->
+                    <div class="md:w-2/3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm">
+                        <!-- 메시지 리스트 -->
+                        <div id="chat-messages" class="flex-grow p-4 space-y-3 overflow-y-auto max-h-[300px] custom-scroll text-xs">
+                            <div class="flex gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white flex-shrink-0 font-bold">소</div>
+                                <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none max-w-[85%] text-slate-800 dark:text-slate-200 shadow-sm leading-relaxed">
+                                    반갑네, 젊은 사상가여! 인공지능 윤리의 딜레마에 대해 자네의 목소리를 듣고자 하네. 위에 제시된 주제 중 하나를 고르고 자네의 생각과 논리적 이유를 작성해주면 토론을 시작하겠네. 자네가 내딛는 모든 주장은 어떤 가치를 수호하기 위함인가?
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 메시지 작성 폼 -->
+                        <div class="border-t border-slate-200 dark:border-slate-800 p-3 bg-slate-50 dark:bg-slate-950 flex gap-2">
+                            <input type="text" id="debate-input" placeholder="여기에 당신의 주장과 논거를 자유롭게 작성하세요..." class="flex-grow bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <button onclick="sendDebateMessage()" class="bg-brand-primary hover:bg-indigo-600 text-white px-5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+                                <span>토론 전송</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: 실시간 실천 성찰 패들릿 (Reflection Board) -->
+            <div id="tab-reflection" class="tab-content animate-fade-in hidden space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                        <i class="fa-solid fa-chalkboard-user text-brand-primary"></i>
+                        <span>AI Builder Ethical Commitment Board</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">05. 인공지능 윤리 실천 서약 보드</h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        오늘 수업을 통해 배운 내용을 정리하고, 다가오는 미래 인공지능 시대의 주체적인 빌더 및 시민으로서 가져야 할 윤리적 다짐 한 줄을 서약판에 걸어보세요.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 서약 등록 폼 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2">윤리 실천 다짐 작성</h4>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div class="space-y-1">
+                                <label class="text-slate-600 dark:text-slate-400 font-medium">이름 또는 닉네임</label>
+                                <input type="text" id="board-name" placeholder="예: 1학년 2반 김민지" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl p-2.5 focus:outline-none">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-600 dark:text-slate-400 font-medium">실천 다짐 메시지</label>
+                                <textarea id="board-message" rows="3" placeholder="예: 인공지능의 편리함을 수용하면서도 데이터의 왜곡 여부를 비판적으로 상호 감시하는 시민이 되겠습니다!" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl p-2.5 focus:outline-none resize-none"></textarea>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-600 dark:text-slate-400 font-medium">스티커 색상</label>
+                                <div class="flex gap-2 pt-1">
+                                    <button onclick="selectColor('indigo')" id="color-indigo" class="w-6 h-6 rounded-full bg-indigo-600 ring-2 ring-indigo-300 dark:ring-white transition-all"></button>
+                                    <button onclick="selectColor('cyan')" id="color-cyan" class="w-6 h-6 rounded-full bg-cyan-600 transition-all"></button>
+                                    <button onclick="selectColor('emerald')" id="color-emerald" class="w-6 h-6 rounded-full bg-emerald-600 transition-all"></button>
+                                    <button onclick="selectColor('amber')" id="color-amber" class="w-6 h-6 rounded-full bg-amber-600 transition-all"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="postCommitment()" class="w-full bg-gradient-to-r from-brand-primary to-brand-secondary hover:brightness-110 text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-brand-primary/20">
+                            성찰 서약 보드에 등록하기 <i class="fa-solid fa-pen-fancy ml-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- 포스트잇 벽면 -->
+                    <div class="lg:col-span-2 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex justify-between">
+                            <span>우리 반 실천 서약 판 (Padlet Board)</span>
+                            <span class="text-brand-secondary">실시간 업데이트 중</span>
+                        </h4>
+                        
+                        <div id="board-wall" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto custom-scroll pr-1">
+                            <!-- 초기 목업 데이터 및 등록 데이터 병합 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f172a] text-slate-500 dark:text-slate-500 py-6 px-6 text-center text-xs transition-colors duration-300">
+        <div class="max-w-7xl mx-auto space-y-1">
+            <p>© 2026 고등학교 &lt;인공지능 기초&gt; Ⅲ. 인공지능의 사회적 영향 • 2. 인공지능과 윤리 교육 보조 시스템</p>
+            <p>교재 연계 참고: "인공지능기초_윤리적딜레마.pdf" 150p~155p</p>
+        </div>
+    </footer>
+
+    <script>
+        // 전역 상태 관리 객체
+        const state = {
+            activeTab: 'bias-lab',
+            selectedColor: 'indigo',
+            // 편향 실험실용 데이터
+            candidates: [
+                { id: 1, name: "강지원", gender: "여성", age: "27세", gpa: 92, tone: 88, school: "일반 지방공과대학", overtime: 85, finalScore: 0, description: "이력서 정합도와 인성이 훌륭하나 출신학교 가중치가 낮음" },
+                { id: 2, name: "이준우", gender: "남성", age: "29세", gpa: 85, tone: 90, school: "서울 명문 사립대학", overtime: 95, finalScore: 0, description: "명문대 졸업 및 야근 선호도가 높아 기존 편향 가중치의 수혜를 받음" },
+                { id: 3, name: "박소윤", gender: "여성", age: "31세", gpa: 98, tone: 72, school: "최상위 국립공과대학", overtime: 55, finalScore: 0, description: "학점은 만점 수준이나 면접 시 다소 긴장하여 기계 호감도 및 기여 편향 하락" },
+                { id: 4, name: "최태오", gender: "남성", age: "26세", gpa: 75, tone: 80, school: "지방 거점 국립대학", overtime: 90, finalScore: 0, description: "활동적인 성향으로 야근 및 거주지 조건에 적합함" },
+                { id: 5, name: "Sara (외국인)", gender: "여성", age: "28세", gpa: 94, tone: 82, school: "외국계 유명 공과대학", overtime: 70, finalScore: 0, description: "글로벌 역량은 우수하나 국내 데이터셋 기준 외적 표정 인식에서 미세한 디메리트" }
+            ],
+            // 서약 보드용 초기 데이터
+            commitments: [
+                { id: 1, name: "가윤 (1-3)", message: "AI가 인간의 결정을 대체할 때 데이터에 차별이 없는지 면밀히 감시하는 빌더가 되겠습니다.", color: "cyan" },
+                { id: 2, name: "민준 (1-3)", message: "트롤리 문제를 보며 한 사람 한 사람의 생명이 수치화될 수 없음을 깨달았습니다. 인간 존엄성을 최우선시하겠습니다.", color: "amber" },
+                { id: 3, name: "서현 (1-2)", message: "편향된 데이터에 의해 챗봇이 혐오 발언을 배우지 않도록, 정제 작업을 투명하게 공개하도록 지지하겠습니다.", color: "emerald" },
+                { id: 4, name: "지우 (1-1)", message: "기계의 편리함에 매몰되어 도덕성을 포기하지 않고, 다 함께 참여하는 사회적 민주주의식 합의를 추구하겠습니다.", color: "indigo" }
+            ]
+        };
+
+        // 초기화
+        window.onload = function() {
+            initTheme();
+            renderCandidates();
+            renderCommitments();
+        };
+
+        // 테마 토글 및 감지 시스템
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+                updateThemeToggleIcon(false);
+            } else {
+                document.documentElement.classList.add('dark');
+                updateThemeToggleIcon(true);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeToggleIcon(isDark);
+        }
+
+        function updateThemeToggleIcon(isDark) {
+            const icon = document.getElementById('theme-toggle-icon');
+            if (icon) {
+                if (isDark) {
+                    icon.className = 'fa-solid fa-sun text-brand-accent animate-pulse';
+                } else {
+                    icon.className = 'fa-solid fa-moon text-slate-600';
+                }
+            }
+        }
+
+        // 탭 전환 시스템
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block', 'flex');
+            });
+            
+            const activeEl = document.getElementById(`tab-${tabId}`);
+            if (tabId === 'socrates') {
+                activeEl.classList.remove('hidden');
+                activeEl.classList.add('flex');
+            } else {
+                activeEl.classList.remove('hidden');
+                activeEl.classList.add('block');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80";
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-200 bg-brand-primary text-white shadow-lg shadow-brand-primary/20";
+        }
+
+        // 가중치 업데이트 핸들러
+        function updateWeights() {
+            const r = parseInt(document.getElementById('weight-resume').value);
+            const a = parseInt(document.getElementById('weight-appearance').value);
+            const s = parseInt(document.getElementById('weight-school').value);
+            const o = parseInt(document.getElementById('weight-overtime').value);
+
+            document.getElementById('val-resume').innerText = `${r}%`;
+            document.getElementById('val-appearance').innerText = `${a}%`;
+            document.getElementById('val-school').innerText = `${s}%`;
+            document.getElementById('val-overtime').innerText = `${o}%`;
+
+            const total = r + a + s + o;
+            const totalEl = document.getElementById('total-weight');
+            totalEl.innerText = `${total}%`;
+
+            if (total === 100) {
+                totalEl.className = "font-bold text-brand-success text-sm";
+            } else {
+                totalEl.className = "font-bold text-brand-danger text-sm";
+            }
+        }
+
+        // 지원자 및 시뮬레이션 렌더링
+        function renderCandidates() {
+            const container = document.getElementById('candidates-container');
+            container.innerHTML = '';
+
+            state.candidates.forEach(c => {
+                const isHired = c.hired;
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between shadow-sm ${
+                    isHired 
+                    ? 'bg-brand-primary/15 border-brand-primary dark:bg-brand-primary/10 dark:border-brand-primary shadow-md shadow-brand-primary/5' 
+                    : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-sm">
+                            ${c.name[0]}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">${c.name}</span>
+                                <span class="text-[10px] text-slate-500 dark:text-slate-400">${c.gender} | ${c.age}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">${c.description}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">평가 점수</span>
+                        <span class="block font-black text-sm ${isHired ? 'text-brand-secondary' : 'text-slate-800 dark:text-white'}">${c.finalScore ? c.finalScore.toFixed(1) : '-'}점</span>
+                        ${isHired ? '<span class="text-[9px] bg-brand-success text-black px-1.5 py-0.5 rounded-full font-bold">최종선발</span>' : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 알고리즘 면접 실행 시뮬레이터
+        function runSimulation() {
+            const r = parseInt(document.getElementById('weight-resume').value);
+            const a = parseInt(document.getElementById('weight-appearance').value);
+            const s = parseInt(document.getElementById('weight-school').value);
+            const o = parseInt(document.getElementById('weight-overtime').value);
+
+            // 가중치 합이 100%인지 확인
+            if (r + a + s + o !== 100) {
+                showInAppNotification("가중치의 합계가 100%가 되도록 슬라이더를 먼저 조정해주세요!");
+                return;
+            }
+
+            // 각 후보자별 점수 정비 및 수치 공식 적용
+            state.candidates.forEach(c => {
+                c.finalScore = (c.gpa * (r/100)) + (c.tone * (a/100)) + (c.school.includes("명문") ? 95 * (s/100) : 70 * (s/100)) + (c.overtime * (o/100));
+            });
+
+            // 정렬 후 선발 처리 (상위 2명)
+            const sorted = [...state.candidates].sort((x, y) => y.finalScore - x.finalScore);
+            const cutoffScore = sorted[1].finalScore;
+
+            state.candidates.forEach(c => {
+                c.hired = c.finalScore >= cutoffScore;
+            });
+
+            // 편향 지수 산출 및 다양성 지수 분석
+            const hiredCandidates = state.candidates.filter(c => c.hired);
+            const femaleCount = hiredCandidates.filter(c => c.gender === "여성").length;
+            const maleCount = hiredCandidates.filter(c => c.gender === "남성").length;
+
+            const diversity = femaleCount === 1 ? "매우 균형적 (50%)" : femaleCount === 2 ? "여성 중심 선발 (100%)" : "남성 중심 선발 (100%)";
+            
+            // 편향지수 계산 공식 (외모, 출신학교, 야근 등의 편향 가중치 합산에 비례)
+            const biasIndexVal = ((a * 0.4) + (s * 0.3) + (o * 0.5)).toFixed(1);
+            let biasLevel = "낮음 (이상적)";
+            if (biasIndexVal > 25) biasLevel = "보통 (인간 편견 답습)";
+            if (biasIndexVal > 35) biasLevel = "매우 높음 (차별 유발 우려)";
+
+            document.getElementById('stat-diversity').innerText = diversity;
+            document.getElementById('stat-bias').innerText = `${biasIndexVal}% (${biasLevel})`;
+
+            // 결과 해석 리포트 작성
+            let analysisReport = "";
+            if (o > 25) {
+                analysisReport = "야근 가중치(Hidden Bias)를 과도하게 설정한 결과, 체력적 성공 조건에 익숙한 특정 남성 이력 가점 패턴이 알고리즘에 작용하여 역량이 월등한 소윤 씨와 같은 인재가 누락되었습니다.";
+            } else if (a > 30) {
+                analysisReport = "외적 호감도 평가 비중이 지나치게 커지며, 목소리 톤이나 외형 특징만으로 높은 점수가 도출되는 기술적 오류가 발생했습니다. 면접관의 주관이 과다 탑재되었습니다.";
+            } else {
+                analysisReport = "이력서 정합성 비중을 상위에 두고, 외형 편향 인자를 최소화하도록 정밀 조율되었습니다. 비교적 학점과 정비례한 객관적인 혁신 인재 채용이 완수되었습니다.";
+            }
+
+            document.getElementById('sim-analysis-text').innerText = analysisReport;
+            document.getElementById('sim-result-box').classList.remove('hidden');
+
+            renderCandidates();
+        }
+
+        // 트롤리 투표 로직
+        function voteTrolley(caseNum, type) {
+            document.getElementById(`trolley-case${caseNum}-vote`).classList.add('hidden');
+            document.getElementById(`trolley-case${caseNum}-result`).classList.remove('hidden');
+            
+            // 미션 체크 아이콘 변경
+            document.getElementById('mission-trolley').className = "fa-regular fa-square-check text-brand-success";
+        }
+
+        // 모랄 머신 미니게임 선택 처리
+        function chooseMoral(target) {
+            document.getElementById('moral-result-alert').classList.remove('hidden');
+            document.getElementById('mission-moral').className = "fa-regular fa-square-check text-brand-success";
+        }
+
+        // 인앱 노티 기능 구현
+        function showInAppNotification(text) {
+            const noti = document.createElement('div');
+            noti.className = "fixed bottom-5 right-5 bg-white dark:bg-indigo-950 border border-brand-primary text-slate-800 dark:text-white text-xs px-5 py-3.5 rounded-2xl shadow-2xl z-50 animate-fade-in flex items-center gap-2";
+            noti.innerHTML = `<i class="fa-solid fa-circle-info text-brand-secondary"></i> <span>${text}</span>`;
+            document.body.appendChild(noti);
+            setTimeout(() => {
+                noti.remove();
+            }, 3000);
+        }
+
+        // Gemini API를 이용한 디베이트 제어 로직
+        async function sendDebateMessage() {
+            const inputEl = document.getElementById('debate-input');
+            const studentText = inputEl.value.trim();
+            if (!studentText) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // 학생 메시지 렌더링
+            const studentMsg = document.createElement('div');
+            studentMsg.className = "flex gap-2.5 justify-end";
+            studentMsg.innerHTML = `
+                <div class="bg-brand-primary/10 dark:bg-brand-primary/20 border border-brand-primary/30 p-3 rounded-2xl rounded-tr-none max-w-[85%] text-slate-800 dark:text-slate-200 shadow-sm leading-relaxed">
+                    ${studentText}
+                </div>
+                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-slate-700 text-brand-primary dark:text-white flex items-center justify-center font-bold flex-shrink-0">나</div>
+            `;
+            chatMessages.appendChild(studentMsg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            inputEl.value = '';
+
+            // 로딩 메시지 출력
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = "flex gap-2.5";
+            loadingMsg.id = "debate-loading-indicator";
+            loadingMsg.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white flex-shrink-0 font-bold">소</div>
+                <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none max-w-[85%] text-slate-500 dark:text-slate-400">
+                    소크라테스가 질문에 대해 깊이 사색하며 질문을 준비하고 있네... <i class="fa-solid fa-spinner animate-spin ml-1.5"></i>
+                </div>
+            `;
+            chatMessages.appendChild(loadingMsg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 주제에 따른 소크라테스용 시스템 프롬프트 작성
+            const topicVal = document.getElementById('debate-topic').value;
+            let systemPrompt = "당신은 고등학생들과 대화하는 도덕철학자 '소크라테스'입니다. ";
+            systemPrompt += "학생이 제시한 도덕적 주장이나 윤리관을 심층 분석하고, ";
+            systemPrompt += "그 주장이 수호하려는 가치가 '공리주의(Utilitarianism)'에 가까운지, 아니면 '의무론(Deontology)'에 가까운지 명시적으로 짚어주세요. ";
+            systemPrompt += "그 다음, 학생의 주장이 가질 수 있는 모순점이나 부작용을 예리하지만 친절한 '산파술 질문(Socratic question)' 하나로 유도해야 합니다. ";
+            systemPrompt += "반드시 한국어로 답변하고, 고등학교 눈높이에 맞춰 대단히 명료하고 따뜻하며 유익한 톤을 유지하세요. 길이는 반드시 3줄 이내로 매우 직관적으로 작성해 주십시오.";
+
+            // Gemini 3.1 Flash API 호출
+            const apiKey = ""; // Canvas 환경에서 자동 공급되는 API 키
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `주제: ${topicVal}에 대해 학생이 말함: "${studentText}"` }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            try {
+                // Throttling 방지를 위한 exponential backoff 구조의 fetch 적용
+                const fetchWithRetry = async (url, options, retries = 3, delay = 1000) => {
+                    try {
+                        const response = await fetch(url, options);
+                        if (!response.ok && retries > 0) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            return fetchWithRetry(url, options, retries - 1, delay * 2);
+                        }
+                        return response;
+                    } catch (err) {
+                        if (retries > 0) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            return fetchWithRetry(url, options, retries - 1, delay * 2);
+                        }
+                        throw err;
+                    }
+                };
+
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                // 로딩 인디케이터 제거
+                document.getElementById('debate-loading-indicator').remove();
+
+                if (aiText) {
+                    const socratesMsg = document.createElement('div');
+                    socratesMsg.className = "flex gap-2.5";
+                    socratesMsg.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white flex-shrink-0 font-bold">소</div>
+                        <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none max-w-[85%] text-slate-800 dark:text-slate-200 shadow-sm leading-relaxed">
+                            ${aiText}
+                        </div>
+                    `;
+                    chatMessages.appendChild(socratesMsg);
+                } else {
+                    throw new Error("Invalid response structure");
+                }
+            } catch (error) {
+                document.getElementById('debate-loading-indicator').remove();
+                const errorMsg = document.createElement('div');
+                errorMsg.className = "flex gap-2.5";
+                errorMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-brand-danger flex items-center justify-center text-white flex-shrink-0 font-bold">오</div>
+                    <div class="bg-brand-danger/10 border border-brand-danger/20 p-3 rounded-2xl rounded-tl-none max-w-[85%] text-brand-danger">
+                        토론 시스템 연동 오류가 발생했네. 네트워크를 확인하고 다시 말해주게나!
+                    </div>
+                `;
+                chatMessages.appendChild(errorMsg);
+            }
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            document.getElementById('mission-socrates').className = "fa-regular fa-square-check text-brand-success";
+        }
+
+        // 성찰 보드 관리 로직
+        function selectColor(colorName) {
+            state.selectedColor = colorName;
+            document.querySelectorAll('[id^="color-"]').forEach(btn => {
+                btn.className = btn.className.replace(' ring-2 ring-indigo-300 dark:ring-white', '');
+            });
+            document.getElementById(`color-${colorName}`).className += ' ring-2 ring-indigo-300 dark:ring-white';
+        }
+
+        // 성찰 포스트잇 렌더링
+        function renderCommitments() {
+            const wall = document.getElementById('board-wall');
+            wall.innerHTML = '';
+
+            state.commitments.forEach(c => {
+                const note = document.createElement('div');
+                
+                // 라이트/다크 양방향 시각 안정성을 보장하기 위한 유동적 컬러 매핑
+                let colorClass = "bg-indigo-50/90 border-indigo-200 text-indigo-900 dark:bg-indigo-950/60 dark:border-indigo-500/30 dark:text-indigo-200";
+                if (c.color === "cyan") colorClass = "bg-cyan-50/90 border-cyan-200 text-cyan-900 dark:bg-cyan-950/60 dark:border-cyan-500/30 dark:text-cyan-200";
+                if (c.color === "emerald") colorClass = "bg-emerald-50/90 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-500/30 dark:text-emerald-200";
+                if (c.color === "amber") colorClass = "bg-amber-50/90 border-amber-200 text-amber-900 dark:bg-amber-950/60 dark:border-amber-500/30 dark:text-amber-200";
+
+                note.className = `${colorClass} border p-4 rounded-2xl flex flex-col justify-between space-y-3 shadow-md animate-fade-in`;
+                note.innerHTML = `
+                    <p class="text-xs leading-relaxed font-semibold">"${c.message}"</p>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-800/40 pt-2">
+                        <span class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-user-pen mr-1"></i> ${c.name}</span>
+                        <span>실천 서약 완료</span>
+                    </div>
+                `;
+                wall.appendChild(note);
+            });
+        }
+
+        // 성찰 등록 핸들러
+        function postCommitment() {
+            const nameEl = document.getElementById('board-name');
+            const messageEl = document.getElementById('board-message');
+
+            const name = nameEl.value.trim();
+            const message = messageEl.value.trim();
+
+            if (!name || !message) {
+                showInAppNotification("서약서 서명을 위해 이름과 다짐 내용을 빠짐없이 기입해 주세요!");
+                return;
+            }
+
+            const newCommit = {
+                id: Date.now(),
+                name: name,
+                message: message,
+                color: state.selectedColor
+            };
+
+            state.commitments.unshift(newCommit); // 가장 첫 부분에 렌더링하도록 배치
+            renderCommitments();
+
+            // 폼 필드 초기화
+            nameEl.value = '';
+            messageEl.value = '';
+            showInAppNotification("성공적으로 성찰 서약이 보드에 추가되었습니다!");
+        }
+    </script>
+</body>
+</html>
